@@ -51,13 +51,20 @@ def process_noise(signal, root='white'):
 
     # 3: log-log power spectrum
     spectrum.hs[0] = 0
+    thinkplot.preplot(cols=2)
     spectrum.plot_power(linewidth=1, alpha=0.5)
-    thinkplot.save(root=root+'noise3',
-                   xlabel='Frequency (Hz)',
-                   ylabel='Power',
+    thinkplot.config(xlabel='Frequency (Hz)',
+                     ylabel='Power',
+                     xlim=[0, framerate/2])
+
+    thinkplot.subplot(2)
+    spectrum.plot_power(linewidth=1, alpha=0.5)
+    thinkplot.config(xlabel='Frequency (Hz)',                  
                    xscale='log',
                    yscale='log',
                    xlim=[0, framerate/2])
+
+    thinkplot.save(root=root+'noise3')
 
 
 def plot_gaussian_noise():
@@ -71,7 +78,7 @@ def plot_gaussian_noise():
     thinkplot.preplot(2, cols=2)
     thinkstats2.NormalProbabilityPlot(spectrum.real, label='real')
     thinkplot.config(xlabel='Normal sample',
-                     ylabel='Power',
+                     ylabel='Amplitude',
                      ylim=[-250, 250],
                      loc='lower right')
 
@@ -108,9 +115,10 @@ def plot_pink_noise():
     red = make_spectrum(signal)
 
     linewidth = 2
-    white.plot_power(label='white', color='#9ecae1', linewidth=linewidth)
-    pink.plot_power(label='pink', color='#4292c6', linewidth=linewidth)
-    red.plot_power(label='red', color='#2171b5', linewidth=linewidth)
+    # colorbrewer2.org 4-class sequential OrRd
+    white.plot_power(label='white', color='#fdcc8a', linewidth=linewidth)
+    pink.plot_power(label='pink', color='#fc8d59', linewidth=linewidth)
+    red.plot_power(label='red', color='#d7301f', linewidth=linewidth)
     thinkplot.save(root='noise-triple',
                    xlabel='Frequency (Hz)',
                    ylabel='Power',

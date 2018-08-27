@@ -283,7 +283,7 @@ class _SpectrumParent:
 
         returns: sorted list of (amplitude, frequency) pairs
         """
-        t = zip(self.amps, self.fs)
+        t = list(zip(self.amps, self.fs))
         t.sort(reverse=True)
         return t
 
@@ -592,7 +592,7 @@ class Spectrogram:
         returns: Wave
         """
         res = []
-        for t, spectrum in sorted(self.spec_map.iteritems()):
+        for t, spectrum in sorted(self.spec_map.items()):
             wave = spectrum.make_wave()
             n = len(wave)
             
@@ -705,7 +705,7 @@ class Wave:
 
         other: Wave
         
-        returns: Wave
+        returns: new Wave
         """
         if self.framerate != other.framerate:
             raise ValueError('Wave.__or__: framerates do not agree')
@@ -720,9 +720,9 @@ class Wave:
         Note: this operation ignores the timestamps; the result
         has the timestamps of self.
 
-        other: Spectrum
+        other: Wave
 
-        returns: new Spectrum
+        returns: new Wave
         """
         # the spectrums have to have the same framerate and duration
         assert self.framerate == other.framerate
@@ -934,7 +934,7 @@ class Wave:
         if win_flag:
             window = np.hamming(seg_length)
         i, j = 0, seg_length
-        step = seg_length / 2
+        step = int(seg_length // 2)
 
         # map from time to Spectrum
         spec_map = {}
@@ -953,17 +953,27 @@ class Wave:
 
         return Spectrogram(spec_map, seg_length)
 
+    def get_xfactor(self, options):
+        try:
+            xfactor = options['xfactor']
+            options.pop('xfactor')
+        except KeyError:
+            xfactor = 1
+        return xfactor
+
     def plot(self, **options):
         """Plots the wave.
 
         """
-        thinkplot.plot(self.ts, self.ys, **options)
+        xfactor = self.get_xfactor(options)
+        thinkplot.plot(self.ts * xfactor, self.ys, **options)
 
     def plot_vlines(self, **options):
         """Plots the wave with vertical lines for samples.
 
         """
-        thinkplot.vlines(self.ts, 0, self.ys, **options)
+        xfactor = self.get_xfactor(options)
+        thinkplot.vlines(self.ts * xfactor, 0, self.ys, **options)
 
     def corr(self, other):
         """Correlation coefficient two waves.
